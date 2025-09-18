@@ -60,6 +60,7 @@ npm run dev
 - Workflow: `docs/WORKFLOW.md`
 - Versioned Roadmap + Gantt: `docs/ROADMAP.md`
 - Domain and Types: `server/src/types/domain.ts`
+- Neo4j Aura Free Setup: `docs/AURA_SETUP.md`
 
 ## 🤝 Contributing
 

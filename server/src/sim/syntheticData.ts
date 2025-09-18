@@ -1,5 +1,6 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { SensorModel, SensorData } from '../schemas/sensor.js';
+import { recentSensors } from '../state/index.js';
 
 function randn(mean: number, std: number) {
   const u = 1 - Math.random();
@@ -35,6 +36,7 @@ export function startSyntheticStreaming(io: SocketIOServer) {
     if (process.env.SKIP_DB !== 'true') {
       await SensorModel.create(sample);
     }
+    recentSensors.add(wellId, sample);
     io.emit('sensor:update', sample);
   }, 1000);
 }
