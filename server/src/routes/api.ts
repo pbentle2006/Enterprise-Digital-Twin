@@ -50,4 +50,38 @@ router.get('/orchestrator/mock', async (_req: Request, res: Response) => {
   res.json(result);
 });
 
+// Agents status (mocked for now)
+router.get('/agents/status', async (_req: Request, res: Response) => {
+  res.json([
+    { name: 'PerformanceMonitorAgent', status: 'active' },
+    { name: 'FormationIntelligenceAgent', status: 'idle' },
+    { name: 'PredictiveMaintenanceAgent', status: 'active' },
+    { name: 'DrillingStrategyAgent', status: 'active' },
+  ]);
+});
+
+// Recommendations list (from orchestrator)
+router.get('/recommendations', async (_req: Request, res: Response) => {
+  const orch = new AgentOrchestrator();
+  const result = await orch.orchestrateDecision({
+    currentDepth: 3450,
+    recentSensors: [],
+    geology: [],
+  } as any);
+  res.json({ recommendations: [result.decision], meta: result.metadata });
+});
+
+// KPIs for a given wellId (basic aggregation)
+router.get('/kpis/:wellId', async (req: Request, res: Response) => {
+  const { wellId } = req.params;
+  const last = await SensorModel.find({ wellId }).sort({ timestamp: -1 }).limit(200).lean();
+  const n = last.length || 1;
+  const avgROP = last.reduce((s, d: any) => s + (d.rateOfPenetration || 0), 0) / n;
+  const torque = last.reduce((s, d: any) => s + (d.torque || 0), 0) / n;
+  const wob = last.reduce((s, d: any) => s + (d.weightOnBit || 0), 0) / n;
+  const mechanicalSpecificEnergy = (torque * 0.73756) / Math.max(avgROP, 1e-6) + wob * 10;
+  const costPerFoot = 1000 / Math.max(avgROP, 1e-3);
+  res.json({ avgROP, costPerFoot, mechanicalSpecificEnergy });
+});
+
 export default router;

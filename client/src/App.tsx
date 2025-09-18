@@ -64,12 +64,14 @@ function AlertsPanel({ data }: { data: SensorData[] }) {
 }
 
 function AgentStatus() {
-  const agents = [
-    { name: 'PerformanceMonitorAgent', status: 'active' },
-    { name: 'FormationIntelligenceAgent', status: 'idle' },
-    { name: 'PredictiveMaintenanceAgent', status: 'active' },
-    { name: 'DrillingStrategyAgent', status: 'active' },
-  ]
+  const [agents, setAgents] = useState<{ name: string; status: string }[]>([])
+  useEffect(() => {
+    let mounted = true
+    api.get('/agents/status').then(res => {
+      if (mounted) setAgents(res.data)
+    }).catch(() => setAgents([]))
+    return () => { mounted = false }
+  }, [])
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
       <h2 className="text-lg font-semibold mb-2">Agents</h2>
@@ -81,6 +83,43 @@ function AgentStatus() {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+function RecommendationsPanel() {
+  const [recs, setRecs] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const refresh = async () => {
+    setLoading(true)
+    try {
+      const res = await api.get('/recommendations')
+      setRecs(res.data?.recommendations ?? [])
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => { refresh() }, [])
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-semibold">Recommendations</h2>
+        <button onClick={refresh} disabled={loading} className="px-2 py-1 rounded bg-blue-600 text-white text-sm disabled:opacity-50">
+          {loading ? 'Refreshing…' : 'Refresh'}
+        </button>
+      </div>
+      {recs.length === 0 && <div className="text-gray-500">No recommendations yet</div>}
+      <ul className="space-y-2">
+        {recs.map((r, i) => (
+          <li key={i} className="border border-gray-200 dark:border-gray-700 rounded p-2">
+            <div className="text-sm text-gray-600 dark:text-gray-300">Agent: {r.agent} • Priority: {Math.round((r.priority ?? 0)*100)/100}</div>
+            <div>{r.message ?? r.narrative ?? 'N/A'}</div>
+            {r.params && (
+              <div className="text-sm mt-1 text-gray-700 dark:text-gray-300">Params: WOB {r.params.weightOnBit}, RPM {r.params.rotarySpeed}, Q {r.params.mudFlowRate}</div>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -163,7 +202,10 @@ export default function App() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AgentStatus />
-        <div className="lg:col-span-2"><LLMQuery /></div>
+        <div className="lg:col-span-2 space-y-6">
+          <RecommendationsPanel />
+          <LLMQuery />
+        </div>
       </div>
     </div>
   )
