@@ -46,3 +46,12 @@ logs/
 # Database
 *.db
 *.sqlite3
+
+# Node / JS (monorepo)
+node_modules/
+**/node_modules/
+**/dist/
+**/.env
+client/.vite/
+client/.eslintcache
+server/.eslintcache

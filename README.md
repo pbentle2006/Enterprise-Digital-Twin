@@ -1,6 +1,6 @@
 # Enterprise Digital Twin
 
-A comprehensive digital twin platform for enterprise systems, enabling real-time monitoring, simulation, and analysis of business processes and infrastructure.
+An agentic digital twin platform for drilling optimization. This monorepo demonstrates federated data integration, multi-agent coordination, a graph database (Neo4j), time-series storage (MongoDB), real-time streaming, and intelligent interfaces for proactive alerts and natural language queries.
 
 ## 🚀 Features
 
@@ -10,45 +10,41 @@ A comprehensive digital twin platform for enterprise systems, enabling real-time
 - 3D visualization of enterprise assets
 - API-first architecture
 
-## 🛠️ Installation
+## 🧱 Monorepo Structure
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/enterprise-digital-twin.git
-   cd enterprise-digital-twin
-   ```
+- `server/` — Node.js + Express + TypeScript + Socket.io, MongoDB (time-series), Neo4j (graph)
+- `client/` — React + TypeScript + Vite + Tailwind + Recharts
+- `docker-compose.yml` — Local services for MongoDB and Neo4j
+- `docs/` — Workflow, roadmap, and planning documentation
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
-   ```
+## 🚀 Quick Start (Local)
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1) Start databases (MongoDB + Neo4j):
+```bash
+docker compose up -d
+```
 
-## 🚀 Quick Start
+2) Install and run the server:
+```bash
+cd server
+npm install
+npm run dev
+# Server on http://localhost:4000
+```
 
-1. Start the development server:
-   ```bash
-   uvicorn enterprise_digital_twin.main:app --reload
-   ```
-
-2. Open your browser and navigate to:
-   ```
-   http://localhost:8000
-   ```
-
-3. Access the interactive API documentation at:
-   ```
-   http://localhost:8000/docs
-   ```
+3) Install and run the client:
+```bash
+cd client
+npm install
+npm run dev
+# App on http://localhost:5173
+```
 
 ## 📚 Documentation
 
-For detailed documentation, please refer to the [documentation](docs/).
+- Workflow: `docs/WORKFLOW.md`
+- Versioned Roadmap + Gantt: `docs/ROADMAP.md`
+- Domain and Types: `server/src/types/domain.ts`
 
 ## 🤝 Contributing
 
