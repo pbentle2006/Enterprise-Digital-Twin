@@ -31,8 +31,17 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
 async function start() {
-  await connectMongo();
-  await getNeo4jDriver();
+  if (process.env.SKIP_DB !== 'true') {
+    await connectMongo();
+  } else {
+    logger.warn('SKIP_DB=true — skipping MongoDB connection');
+  }
+
+  if (process.env.SKIP_NEO4J !== 'true') {
+    await getNeo4jDriver();
+  } else {
+    logger.warn('SKIP_NEO4J=true — skipping Neo4j connection');
+  }
 
   server.listen(PORT, () => {
     logger.info(`EDT server running on http://localhost:${PORT}`);

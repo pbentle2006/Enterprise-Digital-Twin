@@ -24,6 +24,21 @@ An agentic digital twin platform for drilling optimization. This monorepo demons
 docker compose up -d
 ```
 
+## ☁️ Quick Start (GitHub Codespaces)
+
+1) Open the repository on GitHub and click "Code" → "Codespaces" → "Create codespace on main".
+
+2) The devcontainer will automatically:
+- Install dependencies for `server/` and `client/`
+- Start the server with DBs skipped (port 4000)
+- Start the client (port 5173)
+
+3) Open forwarded ports in the Codespaces ports panel:
+- Client: open http://localhost:5173
+- Server health: http://localhost:4000/api/health
+
+Scripts used: `.devcontainer/devcontainer.json`, `scripts/codespaces-setup.sh`, `scripts/codespaces-start.sh`
+
 2) Install and run the server:
 ```bash
 cd server

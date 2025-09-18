@@ -32,7 +32,9 @@ export function startSyntheticStreaming(io: SocketIOServer) {
   setInterval(async () => {
     depth += Math.random() * 5;
     const sample = generateSensorSample(depth, wellId);
-    await SensorModel.create(sample);
+    if (process.env.SKIP_DB !== 'true') {
+      await SensorModel.create(sample);
+    }
     io.emit('sensor:update', sample);
   }, 1000);
 }
