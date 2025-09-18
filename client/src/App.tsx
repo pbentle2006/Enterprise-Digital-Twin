@@ -110,6 +110,19 @@ function LLMQuery() {
 
 export default function App() {
   const data = useSensorStream('well-001')
+  const [recommendation, setRecommendation] = useState<string>('')
+  useEffect(() => {
+    let timer = setInterval(async () => {
+      try {
+        const res = await api.get('/orchestrator/mock')
+        const msg = res.data?.decision?.message || res.data?.decision?.narrative || 'Monitoring…'
+        setRecommendation(msg)
+      } catch (_) {
+        // ignore
+      }
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
   const kpi = useMemo(() => {
     const n = data.length || 1
     const avgROP = data.reduce((s, d) => s + d.rateOfPenetration, 0) / n
@@ -123,6 +136,12 @@ export default function App() {
         <h1 className="text-2xl font-bold">Enterprise Digital Twin — Drilling Optimization</h1>
         <div className="text-sm text-gray-600 dark:text-gray-300">Avg ROP: {kpi.avgROP.toFixed(1)} ft/hr • Cost/ft: ${kpi.costPerFoot.toFixed(2)}</div>
       </header>
+
+      {recommendation && (
+        <div className="rounded-md p-3 bg-blue-50 text-blue-900 dark:bg-blue-900/20 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+          <span className="font-semibold">Recommendation:</span> {recommendation}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg p-4 shadow">

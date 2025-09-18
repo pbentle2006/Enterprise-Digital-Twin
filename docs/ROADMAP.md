@@ -18,6 +18,15 @@ Success criteria:
 - `docker-compose up` starts Mongo + Neo4j
 - `npm run dev` in server and client runs end-to-end stream + chart
 
+### v0.1a — Demo Preview (Week 1)
+- Expose orchestrator mock decision endpoint
+- Wire client to display a live recommendation banner and agent activity (using current heuristics)
+- Enable basic Q&A via LLM endpoint (returns placeholder text if no API key)
+- One-click demo script: starts Docker, server, and client, and opens the dashboard
+
+Success criteria:
+- Interactive demo available by end of Week 1 showing streaming data, alerts, a sample recommendation, and Q&A response
+
 ### v0.2 — Agents & Orchestration (Weeks 2–3)
 - Implement agent skeletons:
   - PerformanceMonitorAgent
@@ -85,22 +94,27 @@ gantt
     Backend & DB connectors          :done,   v01a, 2025-09-18, 5d
     Synthetic stream & basic UI      :active, v01b, 2025-09-22, 3d
 
+    section Demo Preview (v0.1a)
+    Orchestrator mock + UI banner    :        v01c, 2025-09-24, 2d
+    LLM Q&A (placeholder ok)         :        v01d, 2025-09-25, 1d
+    Demo script & polish             :        v01e, 2025-09-26, 1d
+
     section Agents & Orchestrator (v0.2)
-    Agent skeletons + orchestrator   :        v02a, 2025-09-25, 7d
-    Agent insights endpoints + UI    :        v02b, 2025-10-02, 5d
+    Agent skeletons + orchestrator   :        v02a, 2025-09-29, 7d
+    Agent insights endpoints + UI    :        v02b, 2025-10-06, 5d
 
     section Graph Modeling (v0.3)
-    Neo4j schema & seeding           :        v03a, 2025-10-09, 4d
-    Graph insights integration       :        v03b, 2025-10-15, 3d
+    Neo4j schema & seeding           :        v03a, 2025-10-13, 4d
+    Graph insights integration       :        v03b, 2025-10-17, 3d
 
     section LLM Interface (v0.4)
-    LLM API + NL Q&A                 :        v04a, 2025-10-20, 4d
-    UI for queries + guardrails      :        v04b, 2025-10-24, 3d
+    LLM API + NL Q&A                 :        v04a, 2025-10-22, 4d
+    UI for queries + guardrails      :        v04b, 2025-10-28, 3d
 
     section Alerts & Scenarios (v0.5)
-    Proactive alerts & KPIs          :        v05a, 2025-10-29, 4d
-    Demo scenarios end-to-end        :        v05b, 2025-11-04, 4d
+    Proactive alerts & KPIs          :        v05a, 2025-11-01, 4d
+    Demo scenarios end-to-end        :        v05b, 2025-11-06, 4d
 
     section Production Demo (v1.0)
-    Polish, CI, docs                 :        v10a, 2025-11-10, 7d
+    Polish, CI, docs                 :        v10a, 2025-11-12, 7d
 ```
