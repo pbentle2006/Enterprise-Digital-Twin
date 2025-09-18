@@ -18,6 +18,53 @@ interface SensorData {
   pressure: number
 }
 
+function GraphInsightsPanel() {
+  const [wells, setWells] = useState<any[]>([])
+  const [error, setError] = useState<string>('')
+  const [loading, setLoading] = useState(false)
+  const load = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await api.get('/graph/offset-wells', { params: { wellId: 'well-001', limit: 5 } })
+      setWells(res.data?.wells ?? [])
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || 'Graph unavailable (Neo4j disabled or not configured)'
+      setError(msg)
+      setWells([])
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => { load() }, [])
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-semibold">Graph Insights — Offset Wells</h2>
+        <button onClick={load} disabled={loading} className="px-2 py-1 rounded bg-indigo-600 text-white text-sm disabled:opacity-50">
+          {loading ? 'Loading…' : 'Refresh'}
+        </button>
+      </div>
+      {error && <div className="text-amber-600 text-sm mb-2">{error}</div>}
+      {(!error && wells.length === 0) && <div className="text-gray-500">No offset wells found</div>}
+      <ul className="space-y-2">
+        {wells.map((w, i) => (
+          <li key={i} className="border border-gray-200 dark:border-gray-700 rounded p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-medium">{w.name || w.id}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">{w.location || 'Unknown'} • {w.type || 'Well'}</div>
+              </div>
+              <div className="text-sm">Similarity: {(w.similarity ?? 0).toFixed(2)}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function useSensorStream(wellId: string) {
   const [data, setData] = useState<SensorData[]>([])
   useEffect(() => {
@@ -204,6 +251,7 @@ export default function App() {
         <AgentStatus />
         <div className="lg:col-span-2 space-y-6">
           <RecommendationsPanel />
+          <GraphInsightsPanel />
           <LLMQuery />
         </div>
       </div>
