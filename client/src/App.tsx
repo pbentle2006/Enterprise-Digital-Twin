@@ -18,6 +18,57 @@ interface SensorData {
   pressure: number
 }
 
+function FormationLookaheadPanel({ currentDepth, wellId }: { currentDepth: number; wellId: string }) {
+  const [ahead, setAhead] = useState<any[]>([])
+  const [error, setError] = useState<string>('')
+  const [loading, setLoading] = useState(false)
+  const load = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await api.get('/graph/lookahead', { params: { wellId, currentDepth: Math.round(currentDepth), count: 2 } })
+      setAhead(res.data?.next ?? [])
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || 'Graph unavailable (Neo4j disabled or not configured)'
+      setError(msg)
+      setAhead([])
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => { load() }, [currentDepth, wellId])
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-semibold">Formation Lookahead</h2>
+        <button onClick={load} disabled={loading} className="px-2 py-1 rounded bg-indigo-600 text-white text-sm disabled:opacity-50">
+          {loading ? 'Loading…' : 'Refresh'}
+        </button>
+      </div>
+      <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">Current depth: {Math.round(currentDepth)} ft</div>
+      {error && <div className="text-amber-600 text-sm mb-2">{error}</div>}
+      {!error && ahead.length === 0 && <div className="text-gray-500">No formations ahead</div>}
+      <ul className="space-y-2">
+        {ahead.map((f, i) => (
+          <li key={i} className="border border-gray-200 dark:border-gray-700 rounded p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-medium">{f.name}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Depth: {f.depth ?? '—'} ft</div>
+              </div>
+              <div className="text-sm text-right">
+                <div>Hardness: {f.properties?.hardness ?? '—'}</div>
+                <div>Rock Strength: {f.properties?.rockStrength ?? '—'}</div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function GraphInsightsPanel() {
   const [wells, setWells] = useState<any[]>([])
   const [error, setError] = useState<string>('')
@@ -252,6 +303,7 @@ export default function App() {
         <div className="lg:col-span-2 space-y-6">
           <RecommendationsPanel />
           <GraphInsightsPanel />
+          <FormationLookaheadPanel currentDepth={data[data.length-1]?.bitDepth ?? 3000} wellId={'well-001'} />
           <LLMQuery />
         </div>
       </div>

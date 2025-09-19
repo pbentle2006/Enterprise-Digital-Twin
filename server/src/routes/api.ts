@@ -6,7 +6,7 @@ import { llmQuery } from '../services/llm.js';
 import { AgentOrchestrator } from '../orchestrator/index.js';
 import { runAgentsForWell } from '../services/agentRunner.js';
 import { initSchema, seedDemo } from '../services/graphSchema.js';
-import { findOffsetWells } from '../services/graphInsights.js';
+import { findOffsetWells, getFormationSequence, getFormationLookahead } from '../services/graphInsights.js';
 
 const router = Router();
 
@@ -137,6 +137,36 @@ router.get('/graph/offset-wells', async (req: Request, res: Response) => {
   try {
     const wells = await findOffsetWells(wellId, limit);
     res.json({ wells });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Graph insight: ordered formation sequence for a well
+router.get('/graph/formation-sequence', async (req: Request, res: Response) => {
+  if (process.env.SKIP_NEO4J === 'true') {
+    return res.status(400).json({ error: 'Neo4j disabled (SKIP_NEO4J=true)' });
+  }
+  const wellId = (req.query.wellId as string) || 'well-001';
+  try {
+    const sequence = await getFormationSequence(wellId);
+    res.json({ wellId, sequence });
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Graph insight: lookahead formations given current depth
+router.get('/graph/lookahead', async (req: Request, res: Response) => {
+  if (process.env.SKIP_NEO4J === 'true') {
+    return res.status(400).json({ error: 'Neo4j disabled (SKIP_NEO4J=true)' });
+  }
+  const wellId = (req.query.wellId as string) || 'well-001';
+  const currentDepth = Number(req.query.currentDepth ?? 3000);
+  const count = Number(req.query.count ?? 1);
+  try {
+    const result = await getFormationLookahead(wellId, currentDepth, count);
+    res.json(result);
   } catch (e: any) {
     res.status(500).json({ error: e.message });
   }

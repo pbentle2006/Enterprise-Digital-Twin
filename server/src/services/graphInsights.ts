@@ -18,3 +18,21 @@ export async function findOffsetWells(wellId: string, limit = 5) {
   const results = await runCypher(cypher, { wellId, limit });
   return results.map((r: any) => r.well);
 }
+
+// Returns ordered formation sequence for a well
+export async function getFormationSequence(wellId: string) {
+  const cypher = `
+  MATCH (w:Well {id: $wellId})-[:DRILLS_THROUGH]->(f:Formation)
+  RETURN f { .name, .depth, properties: f.properties } AS formation
+  ORDER BY formation.depth ASC
+  `;
+  const results = await runCypher(cypher, { wellId });
+  return results.map((r: any) => r.formation);
+}
+
+// Given currentDepth, return the next formation(s) ahead
+export async function getFormationLookahead(wellId: string, currentDepth: number, count = 1) {
+  const seq = await getFormationSequence(wellId);
+  const ahead = seq.filter((f: any) => (f.depth ?? 0) > currentDepth).slice(0, count);
+  return { currentDepth, next: ahead, sequence: seq };
+}
