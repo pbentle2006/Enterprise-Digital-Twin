@@ -5,6 +5,7 @@ import { PredictiveMaintenanceAgent } from '../agents/predictiveMaintenance.js';
 import { DrillingStrategyAgent } from '../agents/drillingStrategy.js';
 import { AgentInsights, DrillingContext, GeologicalData, MaintenanceRecord } from '../types/domain.js';
 import { getFormationLookahead } from './graphInsights.js';
+import { getEquipmentPerformance } from './graphInsights.js';
 
 export async function runAgentsForWell(wellId: string) {
   const sensors = recentSensors.get(wellId);
@@ -33,25 +34,27 @@ export async function runAgentsForWell(wellId: string) {
 
   const perfOut = await perf.run(sensors);
   const formOut = await form.run({ currentDepth, geoData: geo });
-  const maintOut = await maint.run({ equipment: maintRec, recentSensors: sensors });
 
   // Attempt to fetch formation lookahead from Neo4j when enabled; otherwise leave empty
   let lookahead: any = { next: [] };
+  let equipmentPerformance: any = null;
   try {
     if (process.env.SKIP_NEO4J !== 'true') {
       lookahead = await getFormationLookahead('well-001', currentDepth, 2);
+      equipmentPerformance = await getEquipmentPerformance('rig-1');
     }
   } catch {
     lookahead = { next: [] };
+    equipmentPerformance = null;
   }
 
-  const context: DrillingContext = { currentDepth, recentSensors: sensors as any[], geology: geo, lookahead } as any;
+  const context: DrillingContext = { currentDepth, recentSensors: sensors as any[], geology: geo, lookahead, equipmentPerformance } as any;
+  const maintOut = await maint.run({ equipment: maintRec, recentSensors: sensors, equipmentPerformance });
   const inputs: AgentInsights[] = [
     { name: perf.name, insights: perfOut },
     { name: form.name, insights: formOut },
     { name: maint.name, insights: maintOut },
   ];
-
   const stratOut = await strat.run({ inputs, context });
 
   return { perfOut, formOut, maintOut, stratOut, context, inputs };

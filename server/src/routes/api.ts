@@ -6,7 +6,7 @@ import { llmQuery } from '../services/llm.js';
 import { AgentOrchestrator } from '../orchestrator/index.js';
 import { runAgentsForWell } from '../services/agentRunner.js';
 import { initSchema, seedDemo } from '../services/graphSchema.js';
-import { findOffsetWells, getFormationSequence, getFormationLookahead } from '../services/graphInsights.js';
+import { findOffsetWells, getFormationSequence, getFormationLookahead, getEquipmentPerformance } from '../services/graphInsights.js';
 
 const router = Router();
 

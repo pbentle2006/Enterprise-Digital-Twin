@@ -36,3 +36,25 @@ export async function getFormationLookahead(wellId: string, currentDepth: number
   const ahead = seq.filter((f: any) => (f.depth ?? 0) > currentDepth).slice(0, count);
   return { currentDepth, next: ahead, sequence: seq };
 }
+
+// Aggregates equipment performance metrics from BitRun and related DrillingEvent
+export async function getEquipmentPerformance(equipmentId: string) {
+  const cypher = `
+  MATCH (e:Equipment {id: $equipmentId})
+  OPTIONAL MATCH (br:BitRun)-[:PERFORMED_BY]->(e)
+  WITH e, collect(br) AS bitRuns
+  OPTIONAL MATCH (e)-[:GENERATES]->(ev:DrillingEvent)
+  WITH e, bitRuns, collect(ev) AS events
+  RETURN {
+    equipment: e { .id, .type, .model },
+    bitRuns: [ br IN bitRuns | br { .id, .bitType, .depthIn, .depthOut, performance: br.performance } ],
+    events: [ ev IN events | ev { .timestamp, .type, parameters: ev.parameters, .outcome } ],
+    stats: {
+      runs: size(bitRuns),
+      avgROP: CASE WHEN size(bitRuns)=0 THEN 0 ELSE toFloat(reduce(s=0, b IN bitRuns | s + coalesce(b.performance.avgROP, 0))) / size(bitRuns) END
+    }
+  } AS perf
+  `;
+  const rows = await runCypher(cypher, { equipmentId });
+  return rows.length ? rows[0].perf : { equipment: { id: equipmentId }, bitRuns: [], events: [], stats: { runs: 0, avgROP: 0 } };
+}

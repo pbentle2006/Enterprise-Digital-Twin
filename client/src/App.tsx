@@ -18,6 +18,59 @@ interface SensorData {
   pressure: number
 }
 
+function EquipmentPerformancePanel({ equipmentId }: { equipmentId: string }) {
+  const [perf, setPerf] = useState<any | null>(null)
+  const [error, setError] = useState<string>('')
+  const [loading, setLoading] = useState(false)
+  const load = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await api.get('/graph/equipment-performance', { params: { equipmentId } })
+      setPerf(res.data)
+    } catch (e: any) {
+      const msg = e?.response?.data?.error || 'Graph unavailable (Neo4j disabled or not configured)'
+      setError(msg)
+      setPerf(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => { load() }, [equipmentId])
+  const runs = perf?.bitRuns ?? []
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-lg font-semibold">Equipment Performance</h2>
+        <button onClick={load} disabled={loading} className="px-2 py-1 rounded bg-indigo-600 text-white text-sm disabled:opacity-50">
+          {loading ? 'Loading…' : 'Refresh'}
+        </button>
+      </div>
+      {error && <div className="text-amber-600 text-sm mb-2">{error}</div>}
+      {!error && !perf && <div className="text-gray-500">No data</div>}
+      {perf && (
+        <div>
+          <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+            {perf.equipment?.model || perf.equipment?.type || equipmentId} • Runs: {perf.stats?.runs ?? 0} • Avg ROP: {(perf.stats?.avgROP ?? 0).toFixed(1)}
+          </div>
+          <div className="text-sm font-medium mb-1">Recent Bit Runs</div>
+          <ul className="space-y-1">
+            {runs.slice(-5).map((br: any, i: number) => (
+              <li key={i} className="border border-gray-200 dark:border-gray-700 rounded p-2 flex items-center justify-between">
+                <div>
+                  <div className="text-sm">{br.id} • {br.bitType || 'Bit'}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Depth {br.depthIn ?? '—'} → {br.depthOut ?? '—'} ft</div>
+                </div>
+                <div className="text-sm">Avg ROP: {br.performance?.avgROP ?? '—'}</div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FormationLookaheadPanel({ currentDepth, wellId }: { currentDepth: number; wellId: string }) {
   const [ahead, setAhead] = useState<any[]>([])
   const [error, setError] = useState<string>('')
@@ -304,6 +357,7 @@ export default function App() {
           <RecommendationsPanel />
           <GraphInsightsPanel />
           <FormationLookaheadPanel currentDepth={data[data.length-1]?.bitDepth ?? 3000} wellId={'well-001'} />
+          <EquipmentPerformancePanel equipmentId={'rig-1'} />
           <LLMQuery />
         </div>
       </div>
