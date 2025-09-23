@@ -57,10 +57,10 @@ npm run dev
 
 ## 📚 Documentation
 
-- Workflow: `docs/WORKFLOW.md`
-- Versioned Roadmap + Gantt: `docs/ROADMAP.md`
-- Domain and Types: `server/src/types/domain.ts`
-- Neo4j Aura Free Setup: `docs/AURA_SETUP.md`
+- Workflow: https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/docs/WORKFLOW.md
+- Versioned Roadmap + Gantt: https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/docs/ROADMAP.md
+- Domain and Types: https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/server/src/types/domain.ts
+- Neo4j Aura Free Setup: https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/docs/AURA_SETUP.md
 
 ## 🤝 Contributing
 

@@ -18,6 +18,27 @@ interface SensorData {
   pressure: number
 }
 
+function DocsPanel() {
+  const links = [
+    { label: 'Workflow', href: 'https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/docs/WORKFLOW.md' },
+    { label: 'Roadmap + Gantt', href: 'https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/docs/ROADMAP.md' },
+    { label: 'Domain & Types', href: 'https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/server/src/types/domain.ts' },
+    { label: 'Neo4j Aura Free Setup', href: 'https://github.com/pbentle2006/Enterprise-Digital-Twin/blob/main/docs/AURA_SETUP.md' },
+  ]
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow">
+      <h2 className="text-lg font-semibold mb-2">Docs</h2>
+      <ul className="space-y-2">
+        {links.map((l, i) => (
+          <li key={i}>
+            <a className="text-blue-600 hover:underline" href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function EquipmentPerformancePanel({ equipmentId }: { equipmentId: string }) {
   const [perf, setPerf] = useState<any | null>(null)
   const [error, setError] = useState<string>('')
@@ -358,6 +379,7 @@ export default function App() {
           <GraphInsightsPanel />
           <FormationLookaheadPanel currentDepth={data[data.length-1]?.bitDepth ?? 3000} wellId={'well-001'} />
           <EquipmentPerformancePanel equipmentId={'rig-1'} />
+          <DocsPanel />
           <LLMQuery />
         </div>
       </div>
